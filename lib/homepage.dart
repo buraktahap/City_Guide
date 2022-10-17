@@ -21,8 +21,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Completer<GoogleMapController> _controller = Completer();
 // on below line we have specified camera position
-  static const CameraPosition _kGoogle = CameraPosition(
-    target: LatLng(20.42796133580664, 80.885749655962),
+  static  final CameraPosition _kGoogle = CameraPosition(
+    target: LatLng(latitude, longitude),
     zoom: 14.4746,
   );
 
@@ -34,7 +34,10 @@ class _HomePageState extends State<HomePage> {
         .then((value) {})
         .onError((error, stackTrace) async {
       await Geolocator.requestPermission();
+      print("ERROR$error");
     });
+    longitude = await Geolocator.getCurrentPosition().then((value) => value.longitude);
+    latitude = await Geolocator.getCurrentPosition().then((value) => value.latitude);
     return await Geolocator.getCurrentPosition();
   }
 
@@ -49,28 +52,59 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SafeArea(
         // on below line creating google maps
-        child: GoogleMap(
-          // on below line setting camera position
-          initialCameraPosition: _kGoogle,
-          // on below line we are setting markers on the map
-          markers: Set<Marker>.of(markers),
-          // on below line specifying map type.
-          mapType: MapType.normal,
-          // on below line setting user location enabled.
-          myLocationEnabled: true,
-          // on below line setting compass enabled.
-          compassEnabled: true,
-          // on below line specifying controller on map complete.
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
+        child: Column(
+          children:[ Slider(
+                                      max: 7000.0,
+                                      min: 1000.0,
+                                      value: radius,
+                                      onChanged: (newVal) {
+                                        
+                                        setState(() {
+                                          radius = newVal;
+                                        });
+                                      }),Expanded(
+                                        child: SizedBox(
+                                                  child: GoogleMap(
+                                                    // on below line setting camera position
+                                                    initialCameraPosition: _kGoogle,
+                                                    // on below line we are setting markers on the map
+                                                    markers: Set<Marker>.of(markers),
+                                                    // on below line specifying map type.
+                                                    mapType: MapType.normal,
+                                                    // on below line setting user location enabled.
+                                                    myLocationEnabled: true,
+                                                    // on below line setting compass enabled.
+                                                    compassEnabled: true,
+                                                    // on below line specifying controller on map complete.
+                                                    onMapCreated: (GoogleMapController controller) {
+                                                      _controller.complete(controller);
+                                                    },
+                                                    // on below line we are setting on tap listener on map.
+                                                    // onTap: (LatLng latLng) {
+                                                    //   // on below line we are adding marker on the map.
+                                                    //   setState(() {
+                                                    //     markers.add(Marker(
+                                                    //       markerId: MarkerId(latLng.toString()),
+                                                    //       position: latLng,
+                                                    //       infoWindow: const InfoWindow(
+                                                    //         title: "Marker",
+                                                    //         snippet: "This is marker",
+                                                    //       ),
+                                                    //       icon: BitmapDescriptor.defaultMarker,
+                                                    //     ));
+                                                    //   });
+                                                    // },
+                                                    
+                                                  ),
+                                                ),
+                                      ),]
         ),
       ),
       // on pressing floating action button the camera will take to user current location
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          getUserCurrentLocation().then((value) async {
-            //print("${value.latitude} ${value.longitude}");
+            getUserCurrentLocation().then((value) async {
+            print("${value.latitude} ${value.longitude}");
 
             // marker added for current users location
             // markers.add(Marker(
@@ -86,6 +120,7 @@ class _HomePageState extends State<HomePage> {
               target: LatLng(value.latitude, value.longitude),
               zoom: 14,
             );
+            await getUserCurrentLocation();
 
             await getNearbyPlaces();
             // setState(() {
@@ -126,12 +161,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
      getNearbyPlaces() async {
-    await getUserCurrentLocation();
     var url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?type=museum|art_gallery|mosque|cemetery|church|&location=$latitude,$longitude&radius=$radius&key=$apiKey');
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?type=museum|art_gallery|mosque|cemetery|church|&location=$latitude,$longitude&radius=${radius.toString()}&key=$apiKey');
     var response = await http.post(url);
 
-    nearbyPlacesResponse = 
+    nearbyPlacesResponse =
         NearbyPlacesResponse.fromJson(jsonDecode(response.body));
     markers.clear();
     for (var i in nearbyPlacesResponse.results!) {
@@ -142,10 +176,9 @@ class _HomePageState extends State<HomePage> {
         infoWindow: InfoWindow(
           title: i.name!,
           snippet: i.vicinity!,
-          onTap: () => dialogWindowForPlaceInfo(context, i.name!, i.vicinity!, "OK"),
+          onTap: () => dialogWindowForPlaceInfo(context, i.name!, i.photos!.single.photoReference!, "OK"),
         ),
       ));
-      
     }
   }
 }

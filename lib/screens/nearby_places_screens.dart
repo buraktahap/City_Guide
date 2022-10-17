@@ -4,10 +4,12 @@ import 'package:geolocator/geolocator.dart';
 
 import '../response/nearby_places_response.dart';
   String apiKey = "AIzaSyAOySBRKwifABRcXPQFETKnDLfhUKqqbOg";
-  String radius = "1500";
+  double radius = 1500;
 
-  double latitude = 31.5111093;
-  double longitude = 74.279664;
+  double latitude = 38.45817;
+
+  double longitude = 27.2116;
+
 
   NearbyPlacesResponse nearbyPlacesResponse = NearbyPlacesResponse();
 class NearByPlacesScreen extends StatefulWidget {
@@ -38,10 +40,6 @@ class _NearByPlacesScreenState extends State<NearByPlacesScreen> {
           children: [
             ElevatedButton(
                 onPressed: () {
-                  getUserCurrentLocation().then((value) {
-                    latitude = value.latitude;
-                    longitude = value.longitude;
-                  });
                 },
                 child: const Text("Get My Location")),
             ElevatedButton(
@@ -57,17 +55,7 @@ class _NearByPlacesScreenState extends State<NearByPlacesScreen> {
 
   
 }
-Future<Position> getUserCurrentLocation() async {
-    await Geolocator.requestPermission()
-        .then((value) {})
-        .onError((error, stackTrace) async {
-      await Geolocator.requestPermission();
-      print("ERROR$error");
-    });
-    longitude = await Geolocator.getCurrentPosition().then((value) => value.longitude);
-    latitude = await Geolocator.getCurrentPosition().then((value) => value.latitude);
-    return await Geolocator.getCurrentPosition();
-  }
+
 
 
 
