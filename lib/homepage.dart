@@ -1,17 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:city_guide/response/nearby_places_response.dart';
 import 'package:city_guide/screens/nearby_places_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 
-List<Marker> markers = <Marker>[
-  const Marker(
-      markerId: MarkerId('1'),
-      position: LatLng(20.42796133580664, 75.885749655962),
-      infoWindow: InfoWindow(
-        title: 'My Position',
-      )),
-];
+import 'custom_widgets/place_info_window.dart';
+
+List<Marker> markers = <Marker>[];
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -36,7 +34,6 @@ class _HomePageState extends State<HomePage> {
         .then((value) {})
         .onError((error, stackTrace) async {
       await Geolocator.requestPermission();
-      print("ERROR$error");
     });
     return await Geolocator.getCurrentPosition();
   }
@@ -73,16 +70,16 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           getUserCurrentLocation().then((value) async {
-            print("${value.latitude} ${value.longitude}");
+            //print("${value.latitude} ${value.longitude}");
 
             // marker added for current users location
-            markers.add(Marker(
-              markerId: const MarkerId("2"),
-              position: LatLng(value.latitude, value.longitude),
-              infoWindow: const InfoWindow(
-                title: 'My Current Location',
-              ),
-            ));
+            // markers.add(Marker(
+            //   markerId: const MarkerId("2"),
+            //   position: LatLng(value.latitude, value.longitude),
+            //   infoWindow: const InfoWindow(
+            //     title: 'My Current Location',
+            //   ),
+            // ));
 
             // specified current users location
             CameraPosition cameraPosition = CameraPosition(
@@ -90,11 +87,9 @@ class _HomePageState extends State<HomePage> {
               zoom: 14,
             );
 
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const NearByPlacesScreen(
-                      key: Key("HomePage"),
-                    )));
-
+            await getNearbyPlaces();
+            // setState(() {
+            // });
             final GoogleMapController controller = await _controller.future;
             controller
                 .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
@@ -129,5 +124,28 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+     getNearbyPlaces() async {
+    await getUserCurrentLocation();
+    var url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?type=museum|art_gallery|mosque|cemetery|church|&location=$latitude,$longitude&radius=$radius&key=$apiKey');
+    var response = await http.post(url);
+
+    nearbyPlacesResponse = 
+        NearbyPlacesResponse.fromJson(jsonDecode(response.body));
+    markers.clear();
+    for (var i in nearbyPlacesResponse.results!) {
+      markers.add(Marker(
+        markerId: MarkerId(i.placeId.toString()),
+        position: LatLng(
+            i.geometry!.location!.lat!, i.geometry!.location!.lng!),
+        infoWindow: InfoWindow(
+          title: i.name!,
+          snippet: i.vicinity!,
+          onTap: () => dialogWindowForPlaceInfo(context, i.name!, i.vicinity!, "OK"),
+        ),
+      ));
+      
+    }
   }
 }

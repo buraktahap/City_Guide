@@ -1,5 +1,4 @@
 import 'package:city_guide/homepage.dart';
-import 'package:city_guide/screens/nearby_places_screens.dart';
 import 'package:flutter/material.dart';
 
 void main() {
