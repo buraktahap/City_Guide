@@ -1,7 +1,4 @@
 class NearbyPlacesResponse {
-  List<Results>? results;
-  String? status;
-
   NearbyPlacesResponse({this.results, this.status});
 
   NearbyPlacesResponse.fromJson(Map<String, dynamic> json) {
@@ -14,6 +11,9 @@ class NearbyPlacesResponse {
     status = json['status'];
   }
 
+  List<Results>? results;
+  String? status;
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (results != null) {
@@ -25,23 +25,6 @@ class NearbyPlacesResponse {
 }
 
 class Results {
-  Geometry? geometry;
-  String? icon;
-  String? iconBackgroundColor;
-  String? iconMaskBaseUri;
-  String? name;
-  List<Photos>? photos;
-  String? placeId;
-  String? reference;
-  String? scope;
-  List<String>? types;
-  String? vicinity;
-  String? businessStatus;
-  OpeningHours? openingHours;
-  PlusCode? plusCode;
-  dynamic rating;
-  int? userRatingsTotal;
-
   Results(
       {this.geometry,
       this.icon,
@@ -88,6 +71,23 @@ class Results {
     userRatingsTotal = json['user_ratings_total'];
   }
 
+  String? businessStatus;
+  Geometry? geometry;
+  String? icon;
+  String? iconBackgroundColor;
+  String? iconMaskBaseUri;
+  String? name;
+  OpeningHours? openingHours;
+  List<Photos>? photos;
+  String? placeId;
+  PlusCode? plusCode;
+  dynamic rating;
+  String? reference;
+  String? scope;
+  List<String>? types;
+  int? userRatingsTotal;
+  String? vicinity;
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (geometry != null) {
@@ -119,9 +119,6 @@ class Results {
 }
 
 class Geometry {
-  Location? location;
-  Viewport? viewport;
-
   Geometry({this.location, this.viewport});
 
   Geometry.fromJson(Map<String, dynamic> json) {
@@ -130,6 +127,9 @@ class Geometry {
     viewport =
         json['viewport'] != null ? Viewport.fromJson(json['viewport']) : null;
   }
+
+  Location? location;
+  Viewport? viewport;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -144,15 +144,15 @@ class Geometry {
 }
 
 class Location {
-  double? lat;
-  double? lng;
-
   Location({this.lat, this.lng});
 
   Location.fromJson(Map<String, dynamic> json) {
     lat = json['lat'];
     lng = json['lng'];
   }
+
+  double? lat;
+  double? lng;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -163,9 +163,6 @@ class Location {
 }
 
 class Viewport {
-  Location? northeast;
-  Location? southwest;
-
   Viewport({this.northeast, this.southwest});
 
   Viewport.fromJson(Map<String, dynamic> json) {
@@ -174,6 +171,9 @@ class Viewport {
     southwest =
         json['southwest'] != null ? Location.fromJson(json['southwest']) : null;
   }
+
+  Location? northeast;
+  Location? southwest;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -188,11 +188,6 @@ class Viewport {
 }
 
 class Photos {
-  int? height;
-  List<String>? htmlAttributions;
-  String? photoReference;
-  int? width;
-
   Photos({this.height, this.htmlAttributions, this.photoReference, this.width});
 
   Photos.fromJson(Map<String, dynamic> json) {
@@ -201,6 +196,11 @@ class Photos {
     photoReference = json['photo_reference'];
     width = json['width'];
   }
+
+  int? height;
+  List<String>? htmlAttributions;
+  String? photoReference;
+  int? width;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -213,13 +213,13 @@ class Photos {
 }
 
 class OpeningHours {
-  bool? openNow;
-
   OpeningHours({this.openNow});
 
   OpeningHours.fromJson(Map<String, dynamic> json) {
     openNow = json['open_now'];
   }
+
+  bool? openNow;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -229,15 +229,15 @@ class OpeningHours {
 }
 
 class PlusCode {
-  String? compoundCode;
-  String? globalCode;
-
   PlusCode({this.compoundCode, this.globalCode});
 
   PlusCode.fromJson(Map<String, dynamic> json) {
     compoundCode = json['compound_code'];
     globalCode = json['global_code'];
   }
+
+  String? compoundCode;
+  String? globalCode;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};

@@ -1,17 +1,16 @@
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 
 import '../response/nearby_places_response.dart';
-  String apiKey = "AIzaSyAOySBRKwifABRcXPQFETKnDLfhUKqqbOg";
-  double radius = 1500;
 
-  double latitude = 38.45817;
+String apiKey = "AIzaSyAOySBRKwifABRcXPQFETKnDLfhUKqqbOg";
+double radius = 1500;
 
-  double longitude = 27.2116;
+double latitude = 38.45817;
 
+double longitude = 27.2116;
 
-  NearbyPlacesResponse nearbyPlacesResponse = NearbyPlacesResponse();
+NearbyPlacesResponse nearbyPlacesResponse = NearbyPlacesResponse();
+
 class NearByPlacesScreen extends StatefulWidget {
   const NearByPlacesScreen({Key? key}) : super(key: key);
 
@@ -20,8 +19,6 @@ class NearByPlacesScreen extends StatefulWidget {
 }
 
 class _NearByPlacesScreenState extends State<NearByPlacesScreen> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,26 +36,12 @@ class _NearByPlacesScreenState extends State<NearByPlacesScreen> {
         child: Column(
           children: [
             ElevatedButton(
-                onPressed: () {
-                },
-                child: const Text("Get My Location")),
+                onPressed: () {}, child: const Text("Get My Location")),
             ElevatedButton(
-                onPressed: () async{
-                  await nearbyPlacesWidget();
-                },
-                child: const Text("Get Nearby Places")),
+                onPressed: () async {}, child: const Text("Get Nearby Places")),
           ],
         ),
       ),
     );
   }
-
-  
 }
-
-
-
-
-  nearbyPlacesWidget() async {
-    
-  }
