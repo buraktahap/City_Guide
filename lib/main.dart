@@ -12,8 +12,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // on below line we are specifying title of our app
-      title: 'GFG',
       // on below line we are hiding debug banner
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

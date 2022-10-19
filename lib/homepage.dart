@@ -53,22 +53,27 @@ class _HomePageState extends State<HomePage> {
         NearbyPlacesResponse.fromJson(jsonDecode(response.body));
     markers.clear();
     for (var i in nearbyPlacesResponse.results!) {
-      markers.add(Marker(
-        markerId: MarkerId(i.placeId.toString()),
-        position:
-            LatLng(i.geometry!.location!.lat!, i.geometry!.location!.lng!),
-        infoWindow: InfoWindow(
-          title: i.name!,
-          snippet: i.vicinity!,
-          onTap: () => dialogWindowForPlaceInfo(
-            context,
-            i.name!,
-            i.photos == null ? "" : i.photos!.single.photoReference,
-            "OK",
-            i.rating == null ? 0 : i.rating!,
+      if (i.businessStatus != "OPERATIONAL") {
+        continue;
+      } else {
+        markers.add(Marker(
+          markerId: MarkerId(i.placeId.toString()),
+          position:
+              LatLng(i.geometry!.location!.lat!, i.geometry!.location!.lng!),
+          infoWindow: InfoWindow(
+            title: i.name!,
+            snippet: i.vicinity!,
+            onTap: () => dialogWindowForPlaceInfo(
+              context,
+              i,
+              // i.name!,
+              // i.photos == null ? "" : i.photos!.single.photoReference,
+              // "OK",
+              // i.rating == null ? 0 : i.rating!.toDouble(),
+            ),
           ),
-        ),
-      ));
+        ));
+      }
     }
   }
 
@@ -81,6 +86,60 @@ class _HomePageState extends State<HomePage> {
         // on below line we have given title of app
         title: const Text("Map Sample"),
       ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              child: Text("Nearby Places"),
+            ),
+            ListTile(
+              title: const Text("Museum"),
+              onTap: () {
+                setState(() {
+                  initialIndex = 0;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Art Gallery"),
+              onTap: () {
+                setState(() {
+                  initialIndex = 1;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Mosque"),
+              onTap: () {
+                setState(() {
+                  initialIndex = 2;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Cemetery"),
+              onTap: () {
+                setState(() {
+                  initialIndex = 3;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Church"),
+              onTap: () {
+                setState(() {
+                  initialIndex = 4;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         // on below line creating google maps
         child: Column(children: [
@@ -88,6 +147,7 @@ class _HomePageState extends State<HomePage> {
               max: 5000.0,
               min: 750.0,
               value: radius,
+              divisions: 10,
               onChanged: (newVal) {
                 setState(() {
                   radius = newVal;
@@ -111,20 +171,6 @@ class _HomePageState extends State<HomePage> {
                   _controller.complete(controller);
                 },
                 // on below line we are setting on tap listener on map.
-                // onTap: (LatLng latLng) {
-                //   // on below line we are adding marker on the map.
-                //   setState(() {
-                //     markers.add(Marker(
-                //       markerId: MarkerId(latLng.toString()),
-                //       position: latLng,
-                //       infoWindow: const InfoWindow(
-                //         title: "Marker",
-                //         snippet: "This is marker",
-                //       ),
-                //       icon: BitmapDescriptor.defaultMarker,
-                //     ));
-                //   });
-                // },
               ),
             ),
           ),
@@ -134,16 +180,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           getUserCurrentLocation().then((value) async {
-            print("${value.latitude} ${value.longitude}");
-
-            // marker added for current users location
-            // markers.add(Marker(
-            //   markerId: const MarkerId("2"),
-            //   position: LatLng(value.latitude, value.longitude),
-            //   infoWindow: const InfoWindow(
-            //     title: 'My Current Location',
-            //   ),
-            // ));
+            debugPrint("${value.latitude} ${value.longitude}");
 
             // specified current users location
             CameraPosition cameraPosition = CameraPosition(
@@ -161,32 +198,26 @@ class _HomePageState extends State<HomePage> {
             setState(() {});
           });
         },
-        child: const Icon(Icons.local_activity),
+        child: const Icon(Icons.where_to_vote_rounded),
       ),
-
-      bottomNavigationBar: //bottom navigation bar
-          BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Business',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'School',
-          ),
-        ],
-        currentIndex: initialIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: (value) {
-          setState(() {
-            initialIndex = value;
-          });
-        },
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 4.0,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {},
+            ),
+          ],
+        ),
       ),
     );
   }
