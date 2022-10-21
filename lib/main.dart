@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // on below line we are specifying theme
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.red,
       ),
       // First screen of our app
       home: const HomePage(),

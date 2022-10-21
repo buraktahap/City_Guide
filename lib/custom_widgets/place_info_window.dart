@@ -66,6 +66,22 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
                       // width: MediaQuery.of(context).size.width - 50,
                     ),
               const SizedBox(),
+              // more detail
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    placeInfo.openingHours == null
+                        ? "No Info"
+                        : placeInfo.openingHours!.openNow == true
+                            ? "Open Now"
+                            : "Not Open Now",
+                    style: const TextStyle(
+                        fontSize: 20, fontStyle: FontStyle.italic),
+                  ),
+                ),
+              ),
             ],
           ),
         );
