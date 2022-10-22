@@ -59,7 +59,10 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
                 ),
               ),
               photoRef == ""
-                  ? const Text("No Image Available")
+                  ? const Icon(
+                      Icons.image_not_supported,
+                      size: 100,
+                    )
                   : Image.network(
                       "https://maps.googleapis.com/maps/api/place/photo?maxwidth=${imageWidth.toInt()}&maxheight=${imageHeight.toInt()}&photoreference=$photoRef&key=$apiKey",
                       fit: BoxFit.contain,
