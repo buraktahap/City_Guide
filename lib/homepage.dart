@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'custom_widgets/place_info_window.dart';
 
 List<Marker> markers = <Marker>[];
+//Circle
+Set<Circle> _circles = <Circle>{};
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -151,6 +153,7 @@ class _HomePageState extends State<HomePage> {
         child: Stack(children: [
           SizedBox(
             child: GoogleMap(
+              circles: _circles,
               myLocationButtonEnabled: false,
               myLocationEnabled: true,
               // on below line setting camera position
@@ -186,7 +189,7 @@ class _HomePageState extends State<HomePage> {
                   //zoom out
                   IconButton(
                     onPressed: () {
-                      if (radius > 750) {
+                      if (radius > 1175) {
                         setState(() {
                           radius -= 425;
                         });
@@ -201,6 +204,12 @@ class _HomePageState extends State<HomePage> {
                         min: 750.0,
                         value: radius,
                         divisions: 10,
+                        onChangeEnd: (newVal) async {
+                          setState(() {
+                            radius = newVal;
+                          });
+                          await _setCircle(LatLng(latitude, longitude));
+                        },
                         onChanged: (newVal) {
                           setState(() {
                             radius = newVal;
@@ -210,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                   //zoom in
                   IconButton(
                     onPressed: () {
-                      if (radius < 5000) {
+                      if (radius < 4575) {
                         setState(() {
                           radius += 425;
                         });
@@ -261,10 +270,9 @@ class _HomePageState extends State<HomePage> {
             Builder(
               builder: (BuildContext context) {
                 return IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () {
-                      return Scaffold.of(context).openDrawer();
-                    });
+                  icon: const Icon(Icons.menu),
+                  onPressed: Scaffold.of(context).openDrawer,
+                );
               },
             ),
             IconButton(
@@ -325,93 +333,103 @@ class _HomePageState extends State<HomePage> {
   }
 
   placeCards() {
+    final cardList = nearbyPlacesResponse.results!
+        .where((element) => (element.rating ?? 0.0) >= 4.0)
+        .toList();
     return Align(
       alignment: Alignment.bottomCenter,
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.25,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        height: MediaQuery.of(context).size.height * 0.15,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: nearbyPlacesResponse.results?.length,
+          itemCount: cardList.length,
           itemBuilder: (context, index) {
+            final card = cardList[index];
             return GestureDetector(
               onTap: () {
                 dialogWindowForPlaceInfo(
                   context,
-                  nearbyPlacesResponse.results![index],
+                  card,
                 );
               },
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
+                width: MediaQuery.of(context).size.width,
                 child: Card(
-                    margin: const EdgeInsets.all(8.0),
                     elevation: 10,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            child: nearbyPlacesResponse
-                                        .results?[index].photos ==
-                                    null
-                                ? const Icon(Icons.image_not_supported_rounded)
-                                : Image.network(
-                                    "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nearbyPlacesResponse.results![index].photos!.single.photoReference}&key=$apiKey",
-                                    fit: BoxFit.cover,
-                                  ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          height: MediaQuery.of(context).size.height * 0.15,
+                          width: MediaQuery.of(context).size.height * 0.15,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          Text(
-                            nearbyPlacesResponse.results?[index].name! ?? "",
-                            style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                overflow: TextOverflow.ellipsis),
-                          ),
-                          Text(
-                            nearbyPlacesResponse.results?[index].vicinity ?? "",
-                            style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                overflow: TextOverflow.ellipsis),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              //rating bar
-                              RatingBar.builder(
-                                initialRating: nearbyPlacesResponse
-                                            .results?[index].rating ==
-                                        null
-                                    ? 0
-                                    : nearbyPlacesResponse
-                                        .results?[index].rating
-                                        .toDouble(),
-                                minRating: 1,
-                                direction: Axis.horizontal,
-                                allowHalfRating: true,
-                                itemCount: 5,
-                                itemSize: 20,
-                                itemBuilder: (context, _) => const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
+                          child: card.photos == null
+                              ? const Icon(Icons.image_not_supported_rounded)
+                              : Image.network(
+                                  "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${nearbyPlacesResponse.results![index].photos!.single.photoReference}&key=$apiKey",
+                                  fit: BoxFit.cover,
                                 ),
-                                onRatingUpdate: (rating) {},
-                              ),
-                              Text(
-                                nearbyPlacesResponse.results?[index].rating ==
-                                        null
-                                    ? "0"
-                                    : nearbyPlacesResponse
-                                        .results![index].rating!
-                                        .toString(),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: Text(
+                                card.name ?? "",
                                 style: const TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                            // SizedBox(
+                            //   width: MediaQuery.of(context).size.width * 0.5,
+                            //   child: Text(
+                            //     nearbyPlacesResponse
+                            //             .results?[index].vicinity ??
+                            //         "",
+                            //     style: const TextStyle(
+                            //         fontSize: 15,
+                            //         fontWeight: FontWeight.bold,
+                            //         overflow: TextOverflow.clip),
+                            //   ),
+                            // ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                //rating bar
+                                RatingBarIndicator(
+                                  rating: card.rating == null
+                                      ? 0
+                                      : card.rating!.toDouble(),
+                                  itemCount: 5,
+                                  itemSize: 20.0,
+                                  direction: Axis.horizontal,
+                                  itemBuilder: (context, _) => const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                Text(
+                                  card.rating == null
+                                      ? "0"
+                                      : card.rating.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
                     )),
               ),
             );
@@ -419,5 +437,21 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  _setCircle(LatLng point) async {
+    final GoogleMapController controller = await _controller.future;
+
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: point, zoom: 12)));
+    setState(() {
+      _circles.add(Circle(
+          circleId: const CircleId('circle'),
+          center: point,
+          fillColor: Colors.blue.withOpacity(0.1),
+          radius: 5750 - radius,
+          strokeColor: Colors.blue,
+          strokeWidth: 1));
+    });
   }
 }
