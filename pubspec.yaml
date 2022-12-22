@@ -44,6 +44,7 @@ dependencies:
   geolocator: ^9.0.2
   http: ^0.13.5
   flutter_rating_bar: ^4.0.1
+  wikidart: ^0.0.1
 
 dev_dependencies:
   flutter_test:

@@ -36,7 +36,7 @@ class Results {
       this.reference,
       this.scope,
       this.types,
-      this.vicinity,
+      this.formattedAddress,
       this.businessStatus,
       this.openingHours,
       this.plusCode,
@@ -60,7 +60,7 @@ class Results {
     reference = json['reference'];
     scope = json['scope'];
     types = json['types'].cast<String>();
-    vicinity = json['vicinity'];
+    formattedAddress = json['formatted_address'];
     businessStatus = json['business_status'];
     openingHours = json['opening_hours'] != null
         ? OpeningHours.fromJson(json['opening_hours'])
@@ -86,7 +86,7 @@ class Results {
   String? scope;
   List<String>? types;
   int? userRatingsTotal;
-  String? vicinity;
+  String? formattedAddress;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -104,7 +104,7 @@ class Results {
     data['reference'] = reference;
     data['scope'] = scope;
     data['types'] = types;
-    data['vicinity'] = vicinity;
+    data['formatted_address'] = formattedAddress;
     data['business_status'] = businessStatus;
     if (openingHours != null) {
       data['opening_hours'] = openingHours!.toJson();
