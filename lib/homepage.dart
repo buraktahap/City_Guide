@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:city_guide/custom_widgets/error_window.dart';
+import 'dart:convert';
 import 'package:city_guide/response/nearby_places_response.dart';
-import 'package:city_guide/screens/nearby_places_screens.dart';
+import 'package:city_guide/screens/transportation_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -11,9 +12,23 @@ import 'package:http/http.dart' as http;
 
 import 'custom_widgets/place_info_window.dart';
 
+final lightTheme = ThemeData.light().copyWith();
+
+final darkTheme = ThemeData.dark().copyWith(
+    // Define the default brightness and colors for the dark theme here
+    );
 List<Marker> markers = <Marker>[];
 //Circle
 Set<Circle> _circles = <Circle>{};
+double latitude = 38.45817;
+const apiKey = "AIzaSyCbZ7uHZmGNtqwUa7ZGESdvRAxiUbcAVJg";
+
+List nearbyPlaces = [];
+
+double longitude = 27.2116;
+double radius = 1500;
+NearbyPlacesResponse nearbyPlacesResponse =
+    NearbyPlacesResponse(results: [], status: '');
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -26,16 +41,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    radius = 1000;
-    _circles.add(Circle(
-        circleId: const CircleId("circle"),
-        center: LatLng(latitude, longitude),
-        radius: radius.toDouble(),
-        fillColor: Colors.red.withOpacity(0.2),
-        strokeWidth: 0));
-    _setCircle(LatLng(latitude, longitude));
-
     super.initState();
+    radius = 1000;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getUserCurrentLocation();
+    });
   }
 
 // on below line we have specified camera position
@@ -151,7 +161,10 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          nearbyPlacesResponse.results != null ? placeCards() : Container(),
+          (nearbyPlacesResponse.results != null &&
+                  nearbyPlacesResponse.results!.isNotEmpty)
+              ? placeCards()
+              : Container(),
         ]),
       ),
       // on pressing floating action button the camera will take to user current location
@@ -166,7 +179,6 @@ class _HomePageState extends State<HomePage> {
               zoom: 15 + (radius - 5000) / 2000,
             );
             await getUserCurrentLocation();
-
             await getNearbyPlaces();
             await placeCards();
             // setState(() {
@@ -182,153 +194,49 @@ class _HomePageState extends State<HomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 4.0,
+        notchMargin: 6,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             Builder(
               builder: (BuildContext context) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                        icon: const Icon(Icons.menu),
-                        onPressed: Scaffold.of(context).openDrawer,
-                        tooltip: "Menu"),
-                    const Text("Menu")
-                  ],
-                );
+                return IconButton(
+                    constraints:
+                        const BoxConstraints.tightFor(width: 72, height: 55),
+                    padding: EdgeInsets.zero,
+                    icon: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.menu,
+                        ),
+                        Text("Menu")
+                      ],
+                    ),
+                    onPressed: Scaffold.of(context).openDrawer,
+                    tooltip: "Menu");
               },
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {},
-                  tooltip: "Search",
-                ),
-                const Text("Search")
-              ],
+            IconButton(
+              constraints: const BoxConstraints.tightFor(width: 72, height: 55),
+              padding: EdgeInsets.zero,
+              icon: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.search,
+                  ),
+                  Text("Search")
+                ],
+              ),
+              onPressed: () {
+                showErrorWindow(context);
+              },
+              tooltip: "Search",
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Drawer drawer(BuildContext context) {
-    return Drawer(
-      //custom drawer
-      child: ListView(
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.red,
-            ),
-            child: Column(
-              children: const [
-                Icon(
-                  Icons.location_city,
-                  size: 100,
-                  color: Colors.white,
-                ),
-                Text(
-                  "City Guide",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          //weather of the city
-          ListTile(
-            leading: const Icon(Icons.wb_sunny),
-            title: const Text("How is the weather?"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          //news
-          ListTile(
-            leading: const Icon(Icons.newspaper),
-            title: const Text("News"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          //events
-          ListTile(
-            leading: const Icon(Icons.event),
-            title: const Text("Events"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          //tips
-          ListTile(
-            leading: const Icon(Icons.lightbulb),
-            title: const Text("Tips"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.credit_card),
-            title: const Text("Buy Card"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text("Settings"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help),
-            title: const Text("Help"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.exit_to_app),
-            title: const Text("Exit"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-          //about
-          ListTile(
-            leading: const Icon(Icons.info),
-            title: const Text("About"),
-            onTap: () {
-              Navigator.pop(context);
-              showErrorWindow(context);
-            },
-          ),
-
-          //version
-          const ListTile(
-            title: Text("Version 0.1.0"),
-          ),
-        ],
       ),
     );
   }
@@ -348,18 +256,53 @@ class _HomePageState extends State<HomePage> {
   }
 
   getNearbyPlaces() async {
+    await getUserCurrentLocation();
+    int requestCount = 0;
+    nearbyPlaces.clear();
+    markers.clear();
     var url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/place/textsearch/json?query=turistik%yerler?&type=museum|art_gallery|hindu_temple|mosque|synagogue|tourist_attraction|cemetery|church|&location=$latitude-$longitude&radius=${(5750 - radius).toString()}&key=$apiKey');
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?request_count=${requestCount.toString()}&type=museum|art_gallery|hindu_temple|mosque|synagogue|tourist_attraction|cemetery|church|&location=$latitude,$longitude&radius=${(5750 - radius).toString()}&key=$apiKey');
     var response = await http.post(url);
-
+    requestCount++;
     nearbyPlacesResponse =
         NearbyPlacesResponse.fromJson(jsonDecode(response.body));
-    markers.clear();
-    for (var i in nearbyPlacesResponse.results!
-        .where((element) =>
-            (element.rating ?? 0.0) >= 3.0 &&
-            element.userRatingsTotal! >= 9 &&
-            element.businessStatus == "OPERATIONAL")
+    nearbyPlacesResponse.results?.forEach((element) {
+      nearbyPlaces.add(element);
+    });
+    while (nearbyPlacesResponse.nextPageToken != null) {
+      await Future.delayed(const Duration(seconds: 2), () {
+        debugPrint('Two second has passed.'); // Prints after 1 second.
+      });
+      final url = Uri.parse(
+          'https://maps.googleapis.com/maps/api/place/nearbysearch/json?pagetoken=${nearbyPlacesResponse.nextPageToken.toString()}&key=$apiKey');
+      var response = await http.post(url);
+      requestCount = 0;
+      nearbyPlacesResponse.nextPageToken = null;
+      nearbyPlacesResponse =
+          NearbyPlacesResponse.fromJson(jsonDecode(response.body));
+      nearbyPlacesResponse.results?.forEach((element) {
+        nearbyPlaces.add(element);
+      });
+    }
+
+    // while (nearbyPlacesResponse.nextPageToken != null) {
+    //   final url = Uri.parse(
+    //       'https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${nearbyPlacesResponse.nextPageToken.toString()}&key=$apiKey');
+    //   var response = await http.post(url);
+    //   nearbyPlacesResponse.nextPageToken = null;
+    //   nearbyPlacesResponse =
+    //       NearbyPlacesResponse.fromJson(jsonDecode(response.body));
+    //   nearbyPlacesResponse.results?.forEach((element) {
+    //     nearbyPlaces.add(element);
+    //   });
+    //   await Future.delayed(const Duration(seconds: 2), () {
+    //     debugPrint('One second has passed.'); // Prints after 1 second.
+    //   });
+    // }
+
+    debugPrint(nearbyPlaces.length.toString());
+    for (var i in nearbyPlaces
+        .where((element) => (element.rating ?? 0.0) >= 3.0)
         .toList()) {
       markers.add(Marker(
         markerId: MarkerId(i.placeId.toString()),
@@ -367,7 +310,7 @@ class _HomePageState extends State<HomePage> {
             LatLng(i.geometry!.location!.lat!, i.geometry!.location!.lng!),
         infoWindow: InfoWindow(
           title: i.name!,
-          snippet: i.formattedAddress ?? "No address",
+          snippet: i.vicinity ?? "No address",
           onTap: () => dialogWindowForPlaceInfo(
             context,
             i,
@@ -382,9 +325,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   placeCards() {
-    final cardList = nearbyPlacesResponse.results!
-        .where((element) =>
-            (element.rating ?? 0.0) >= 4.0 && element.userRatingsTotal! >= 9)
+    final cardList = nearbyPlaces
+        .where((element) => (element.rating ?? 0.0) >= 3.0)
         .toList();
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -436,15 +378,18 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.5,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.07,
                                 child: Text(
                                   card.name ?? "",
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
+                                    overflow: TextOverflow.clip,
                                   ),
                                 ),
                               ),
@@ -514,5 +459,125 @@ class _HomePageState extends State<HomePage> {
           strokeColor: Colors.blue,
           strokeWidth: 1));
     });
+  }
+
+  Drawer drawer(BuildContext context) {
+    return Drawer(
+      //custom drawer
+      child: ListView(
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Colors.red,
+            ),
+            child: Column(
+              children: const [
+                Icon(
+                  Icons.location_city,
+                  size: 100,
+                  color: Colors.white,
+                ),
+                Text(
+                  "City Guide",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          //weather of the city
+          ListTile(
+            leading: const Icon(Icons.wb_sunny),
+            title: const Text("How is the weather?"),
+            onTap: () {
+              Navigator.pop(context);
+              showErrorWindow(context);
+            },
+          ),
+          //news
+          ListTile(
+            leading: const Icon(Icons.newspaper),
+            title: const Text("News"),
+            onTap: () {
+              Navigator.pop(context);
+              showErrorWindow(context);
+            },
+          ),
+          //events
+          ListTile(
+            leading: const Icon(Icons.event),
+            title: const Text("Events"),
+            onTap: () {
+              Navigator.pop(context);
+              showErrorWindow(context);
+            },
+          ),
+          //tips
+          ListTile(
+            leading: const Icon(Icons.lightbulb),
+            title: const Text("Tips"),
+            onTap: () {
+              Navigator.pop(context);
+              showErrorWindow(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.credit_card),
+            title: const Text("Buy Card"),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const TransportationCard()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text("Settings"),
+            onTap: () {
+              Navigator.pop(context);
+              showErrorWindow(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help),
+            title: const Text("Help"),
+            onTap: () {
+              Navigator.pop(context);
+              showErrorWindow(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text("Exit"),
+            onTap: () {
+              SystemNavigator.pop();
+            },
+          ),
+          //about
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text("About"),
+            onTap: () {
+              showAboutDialog(
+                  context: context,
+                  applicationName: "City Guide",
+                  applicationVersion: "0.1.0",
+                  applicationIcon: const Icon(Icons.location_city),
+                  applicationLegalese: "© 2021 City Guide",
+                  children: [
+                    const Text(
+                        "City Guide is an application that helps you find places in your city. It also provides you with information about the weather, news, events and tips. It is a very useful application for tourists and locals alike."),
+                  ]);
+            },
+          ),
+
+          //version
+          const ListTile(
+            title: Text("Version 0.1.0"),
+          ),
+        ],
+      ),
+    );
   }
 }

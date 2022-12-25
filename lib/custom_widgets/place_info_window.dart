@@ -1,6 +1,7 @@
-import 'package:city_guide/screens/nearby_places_screens.dart';
+import 'package:city_guide/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:wikidart/wikidart.dart';
 
 import '../response/nearby_places_response.dart';
@@ -19,109 +20,159 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
-              title: Text(placeInfo.name!),
+              centerTitle: true,
+              elevation: 0,
+              title: Text(placeInfo.name!,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.clip,
+                      fontFamily: GoogleFonts.quicksand().fontFamily),
+                  textAlign: TextAlign.center),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
                   Navigator.pop(context);
                 },
               )),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                Container(
-                    padding: const EdgeInsets.all(10),
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      placeInfo.formattedAddress?.toString() ?? "",
-                      style: const TextStyle(
-                          fontSize: 20, fontStyle: FontStyle.italic),
-                    )),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      //adress
-
-                      RatingBarIndicator(
-                        itemBuilder: (BuildContext context, int index) {
-                          return const Icon(
-                            Icons.star,
-                            color: Color.fromARGB(255, 254, 212, 84),
-                          );
-                        },
-                        rating: rating,
-                        itemCount: 5,
-                        itemSize: 35.0,
-                        direction: Axis.horizontal,
-                      ),
-                      Text(
-                          "  $rating / 5  (${placeInfo.userRatingsTotal ?? 0})"),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                  alignment: Alignment.topLeft,
+          body: Column(
+            children: [
+              Container(
+                  padding: const EdgeInsets.all(16),
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    placeInfo.openingHours == null
-                        ? "No Info"
-                        : placeInfo.openingHours!.openNow == true
-                            ? "Open Now"
-                            : "Not Open Now",
-                    style: const TextStyle(
-                        fontSize: 20, fontStyle: FontStyle.italic),
-                  ),
-                ),
-                photoRef == ""
-                    ? const Icon(
-                        Icons.image_not_supported,
-                        size: 100,
-                      )
-                    : Image.network(
-                        "https://maps.googleapis.com/maps/api/place/photo?maxwidth=${imageWidth.toInt()}&maxheight=${imageHeight.toInt()}&photoreference=$photoRef&key=$apiKey",
-                        fit: BoxFit.contain,
-                        // width: MediaQuery.of(context).size.width - 50,
-                      ),
-                const SizedBox(
-                  height: 8,
-                ),
-                // more detail
-                FutureBuilder(
-                    future: wiki(placeInfo.name!),
-                    builder: (context, AsyncSnapshot data) {
-                      if (data.connectionState == ConnectionState.waiting) {
-                        return const Align(
-                          alignment: Alignment.bottomCenter,
-                          child: CircularProgressIndicator(),
+                    placeInfo.vicinity?.toString() ?? "",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.clip,
+                        fontFamily: GoogleFonts.quicksand().fontFamily),
+                  )),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    //adress
+
+                    RatingBarIndicator(
+                      itemBuilder: (BuildContext context, int index) {
+                        return const Icon(
+                          Icons.star,
+                          color: Color.fromARGB(255, 254, 212, 84),
                         );
-                      }
-                      return Expanded(
-                        child: SingleChildScrollView(
+                      },
+                      rating: rating,
+                      itemCount: 5,
+                      itemSize: 35.0,
+                      direction: Axis.horizontal,
+                    ),
+                    Text("  $rating / 5  (${placeInfo.userRatingsTotal ?? 0})"),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  placeInfo.openingHours == null
+                      ? "No Info"
+                      : placeInfo.openingHours!.openNow == true
+                          ? "Open Now"
+                          : "Not Open Now",
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.clip,
+                      fontFamily: GoogleFonts.quicksand().fontFamily),
+                ),
+              ),
+              photoRef == ""
+                  ? const Icon(
+                      Icons.image_not_supported,
+                      size: 100,
+                    )
+                  : Image.network(
+                      "https://maps.googleapis.com/maps/api/place/photo?maxwidth=${imageWidth.toInt()}&maxheight=${imageHeight.toInt()}&photoreference=$photoRef&key=$apiKey",
+                      fit: BoxFit.contain,
+                      // width: MediaQuery.of(context).size.width - 50,
+                    ),
+              const SizedBox(
+                height: 8,
+              ),
+              // more detail
+              const Divider(
+                thickness: 2,
+                indent: 10,
+                endIndent: 10,
+              ),
+              FutureBuilder(
+                  future: wiki(placeInfo.name!),
+                  builder: (context, AsyncSnapshot data) {
+                    if (data.connectionState == ConnectionState.waiting) {
+                      return const Align(
+                        alignment: Alignment.bottomCenter,
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (data.data == null) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              size: 100, color: Colors.red),
+                          Text(
+                            "No Wiki Data",
+                            style: TextStyle(
+                                fontSize: 18,
+                                overflow: TextOverflow.clip,
+                                fontFamily: GoogleFonts.quicksand().fontFamily),
+                          ),
+                        ],
+                      );
+                    }
+                    return Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 20),
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                blurRadius: 20,
+                                spreadRadius: 8,
+                              ),
+                            ],
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20)),
+                            color: Colors.grey.shade100,
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
                                 padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                    const EdgeInsets.fromLTRB(16, 0, 16, 10),
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  data.data ?? "No Info",
-                                  style: const TextStyle(
-                                      fontSize: 20,
-                                      fontStyle: FontStyle.italic,
-                                      overflow: TextOverflow.clip),
+                                  data.data,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      overflow: TextOverflow.clip,
+                                      fontFamily:
+                                          GoogleFonts.quicksand().fontFamily),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      );
-                    }),
-              ],
-            ),
+                      ),
+                    );
+                  }),
+            ],
           ),
         );
       });

@@ -1,9 +1,14 @@
 class NearbyPlacesResponse {
-  NearbyPlacesResponse({this.results, this.status, this.nextPageToken});
+  List<Null>? htmlAttributions;
+  String? nextPageToken;
+  List<Results>? results;
+  String? status;
+
+  NearbyPlacesResponse(
+      {this.htmlAttributions, this.nextPageToken, this.results, this.status});
 
   NearbyPlacesResponse.fromJson(Map<String, dynamic> json) {
     nextPageToken = json['next_page_token'];
-
     if (json['results'] != null) {
       results = <Results>[];
       json['results'].forEach((v) {
@@ -13,69 +18,21 @@ class NearbyPlacesResponse {
     status = json['status'];
   }
 
-  List<Results>? results;
-  String? status;
-  String? nextPageToken;
-
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+
+    data['next_page_token'] = nextPageToken;
     if (results != null) {
       data['results'] = results!.map((v) => v.toJson()).toList();
     }
     data['status'] = status;
-    data['next_page_token'] = nextPageToken;
     return data;
   }
 }
 
 class Results {
-  Results(
-      {this.geometry,
-      this.icon,
-      this.iconBackgroundColor,
-      this.iconMaskBaseUri,
-      this.name,
-      this.photos,
-      this.placeId,
-      this.reference,
-      this.scope,
-      this.types,
-      this.vicinity,
-      this.businessStatus,
-      this.openingHours,
-      this.plusCode,
-      this.rating,
-      this.userRatingsTotal});
-
-  Results.fromJson(Map<String, dynamic> json) {
-    geometry =
-        json['geometry'] != null ? Geometry.fromJson(json['geometry']) : null;
-    icon = json['icon'];
-    iconBackgroundColor = json['icon_background_color'];
-    iconMaskBaseUri = json['icon_mask_base_uri'];
-    name = json['name'];
-    if (json['photos'] != null) {
-      photos = <Photos>[];
-      json['photos'].forEach((v) {
-        photos!.add(Photos.fromJson(v));
-      });
-    }
-    placeId = json['place_id'];
-    reference = json['reference'];
-    scope = json['scope'];
-    types = json['types'].cast<String>();
-    vicinity = json['vicinity'];
-    businessStatus = json['business_status'];
-    openingHours = json['opening_hours'] != null
-        ? OpeningHours.fromJson(json['opening_hours'])
-        : null;
-    plusCode =
-        json['plus_code'] != null ? PlusCode.fromJson(json['plus_code']) : null;
-    rating = json['rating'];
-    userRatingsTotal = json['user_ratings_total'];
-  }
-
   String? businessStatus;
+  String? formattedAddress;
   Geometry? geometry;
   String? icon;
   String? iconBackgroundColor;
@@ -85,15 +42,62 @@ class Results {
   List<Photos>? photos;
   String? placeId;
   PlusCode? plusCode;
-  dynamic rating;
+  int? priceLevel;
+  double? rating;
   String? reference;
-  String? scope;
   List<String>? types;
   int? userRatingsTotal;
-  String? vicinity;
+
+  Results(
+      {this.businessStatus,
+      this.formattedAddress,
+      this.geometry,
+      this.icon,
+      this.iconBackgroundColor,
+      this.iconMaskBaseUri,
+      this.name,
+      this.openingHours,
+      this.photos,
+      this.placeId,
+      this.plusCode,
+      this.priceLevel,
+      this.rating,
+      this.reference,
+      this.types,
+      this.userRatingsTotal});
+
+  Results.fromJson(Map<String, dynamic> json) {
+    businessStatus = json['business_status'];
+    formattedAddress = json['formatted_address'];
+    geometry =
+        json['geometry'] != null ? Geometry.fromJson(json['geometry']) : null;
+    icon = json['icon'];
+    iconBackgroundColor = json['icon_background_color'];
+    iconMaskBaseUri = json['icon_mask_base_uri'];
+    name = json['name'];
+    openingHours = json['opening_hours'] != null
+        ? OpeningHours.fromJson(json['opening_hours'])
+        : null;
+    if (json['photos'] != null) {
+      photos = <Photos>[];
+      json['photos'].forEach((v) {
+        photos!.add(Photos.fromJson(v));
+      });
+    }
+    placeId = json['place_id'];
+    plusCode =
+        json['plus_code'] != null ? PlusCode.fromJson(json['plus_code']) : null;
+    priceLevel = json['price_level'];
+    rating = json['rating'].toDouble();
+    reference = json['reference'];
+    types = json['types'].cast<String>();
+    userRatingsTotal = json['user_ratings_total'];
+  }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['business_status'] = businessStatus;
+    data['formatted_address'] = formattedAddress;
     if (geometry != null) {
       data['geometry'] = geometry!.toJson();
     }
@@ -101,28 +105,29 @@ class Results {
     data['icon_background_color'] = iconBackgroundColor;
     data['icon_mask_base_uri'] = iconMaskBaseUri;
     data['name'] = name;
+    if (openingHours != null) {
+      data['opening_hours'] = openingHours!.toJson();
+    }
     if (photos != null) {
       data['photos'] = photos!.map((v) => v.toJson()).toList();
     }
     data['place_id'] = placeId;
-    data['reference'] = reference;
-    data['scope'] = scope;
-    data['types'] = types;
-    data['vicinity'] = vicinity;
-    data['business_status'] = businessStatus;
-    if (openingHours != null) {
-      data['opening_hours'] = openingHours!.toJson();
-    }
     if (plusCode != null) {
       data['plus_code'] = plusCode!.toJson();
     }
+    data['price_level'] = priceLevel;
     data['rating'] = rating;
+    data['reference'] = reference;
+    data['types'] = types;
     data['user_ratings_total'] = userRatingsTotal;
     return data;
   }
 }
 
 class Geometry {
+  Location? location;
+  Viewport? viewport;
+
   Geometry({this.location, this.viewport});
 
   Geometry.fromJson(Map<String, dynamic> json) {
@@ -131,9 +136,6 @@ class Geometry {
     viewport =
         json['viewport'] != null ? Viewport.fromJson(json['viewport']) : null;
   }
-
-  Location? location;
-  Viewport? viewport;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -148,15 +150,15 @@ class Geometry {
 }
 
 class Location {
+  double? lat;
+  double? lng;
+
   Location({this.lat, this.lng});
 
   Location.fromJson(Map<String, dynamic> json) {
     lat = json['lat'];
     lng = json['lng'];
   }
-
-  double? lat;
-  double? lng;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -167,6 +169,9 @@ class Location {
 }
 
 class Viewport {
+  Location? northeast;
+  Location? southwest;
+
   Viewport({this.northeast, this.southwest});
 
   Viewport.fromJson(Map<String, dynamic> json) {
@@ -175,9 +180,6 @@ class Viewport {
     southwest =
         json['southwest'] != null ? Location.fromJson(json['southwest']) : null;
   }
-
-  Location? northeast;
-  Location? southwest;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -191,7 +193,28 @@ class Viewport {
   }
 }
 
+class OpeningHours {
+  bool? openNow;
+
+  OpeningHours({this.openNow});
+
+  OpeningHours.fromJson(Map<String, dynamic> json) {
+    openNow = json['open_now'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['open_now'] = openNow;
+    return data;
+  }
+}
+
 class Photos {
+  int? height;
+  List<String>? htmlAttributions;
+  String? photoReference;
+  int? width;
+
   Photos({this.height, this.htmlAttributions, this.photoReference, this.width});
 
   Photos.fromJson(Map<String, dynamic> json) {
@@ -200,11 +223,6 @@ class Photos {
     photoReference = json['photo_reference'];
     width = json['width'];
   }
-
-  int? height;
-  List<String>? htmlAttributions;
-  String? photoReference;
-  int? width;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -216,32 +234,16 @@ class Photos {
   }
 }
 
-class OpeningHours {
-  OpeningHours({this.openNow});
-
-  OpeningHours.fromJson(Map<String, dynamic> json) {
-    openNow = json['open_now'];
-  }
-
-  bool? openNow;
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['open_now'] = openNow;
-    return data;
-  }
-}
-
 class PlusCode {
+  String? compoundCode;
+  String? globalCode;
+
   PlusCode({this.compoundCode, this.globalCode});
 
   PlusCode.fromJson(Map<String, dynamic> json) {
     compoundCode = json['compound_code'];
     globalCode = json['global_code'];
   }
-
-  String? compoundCode;
-  String? globalCode;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
