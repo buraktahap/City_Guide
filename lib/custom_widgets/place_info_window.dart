@@ -1,9 +1,9 @@
-import 'package:city_guide/homepage.dart';
+import 'package:city_guide/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wikidart/wikidart.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../response/nearby_places_response.dart';
 
 void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
@@ -76,7 +76,7 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
                 alignment: Alignment.topLeft,
                 child: Text(
                   placeInfo.openingHours == null
-                      ? "No Info"
+                      ? AppLocalizations.of(context)!.no_data
                       : placeInfo.openingHours!.openNow == true
                           ? "Open Now"
                           : "Not Open Now",
@@ -123,7 +123,7 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
                           const Icon(Icons.error_outline,
                               size: 100, color: Colors.red),
                           Text(
-                            "No Wiki Data",
+                            AppLocalizations.of(context)!.no_wiki_data,
                             style: TextStyle(
                                 fontSize: 18,
                                 overflow: TextOverflow.clip,
@@ -179,16 +179,18 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
 }
 
 Future wiki(String query) async {
-  var res = await Wikidart.searchQuery("izmir $query");
+  var res = await Wikidart.searchQuery(
+    query.contains("izmir") ? query : "izmir $query",
+  );
   var pageid = res?.results?.first.pageId;
 
   if (pageid != null) {
     var google = await Wikidart.summary(pageid);
 
-    debugPrint(google?.title); // Returns "Google"
-    debugPrint(google?.description); // Returns "American technology company"
-    debugPrint(google
-        ?.extract); // Returns "Google LLC is an American multinational technology company that specializes in Internet-related..."
-    return google?.extract;
+    if (google != null) {
+      // handle errors here
+      return google.extract;
+    }
   }
+  return null;
 }

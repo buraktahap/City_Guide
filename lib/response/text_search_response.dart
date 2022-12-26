@@ -1,5 +1,5 @@
 class NearbyPlacesResponse {
-  List<Null>? htmlAttributions;
+  List<void>? htmlAttributions;
   String? nextPageToken;
   List<Results>? results;
   String? status;

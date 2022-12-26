@@ -1,8 +1,7 @@
 import 'package:city_guide/custom_widgets/error_window.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TransportationCard extends StatefulWidget {
   const TransportationCard({super.key});
@@ -19,7 +18,7 @@ class _TransportationCardState extends State<TransportationCard> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "Purchase Transportation Card",
+          AppLocalizations.of(context)!.purchase_transportation_card,
           style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -44,19 +43,25 @@ class _TransportationCardState extends State<TransportationCard> {
                     autovalidateMode: AutovalidateMode.always,
                     child: Column(
                       children: [
-                        customTextField("Name"),
-                        customTextField("Email",
-                            type: TextInputType.emailAddress),
-                        customTextField("Phone Number",
+                        customTextField(AppLocalizations.of(context)!.name),
+                        customTextField(AppLocalizations.of(context)!.surname),
+                        customTextField(AppLocalizations.of(context)!.email),
+                        customTextField(
+                            AppLocalizations.of(context)!.phone_number,
                             type: TextInputType.number),
-                        customTextField("Address"),
-                        customTextField("Zip Code", type: TextInputType.number),
-                        customTextField("Card Number",
+                        customTextField(AppLocalizations.of(context)!.address),
+                        customTextField(AppLocalizations.of(context)!.zip_code,
                             type: TextInputType.number),
-                        customTextField("Expiration Date",
+                        customTextField(
+                            AppLocalizations.of(context)!.card_number,
                             type: TextInputType.number),
-                        customTextField("CVV", type: TextInputType.number),
-                        customTextField("Cardholder Name"),
+                        customTextField(
+                            AppLocalizations.of(context)!.expiration_date,
+                            type: TextInputType.number),
+                        customTextField(AppLocalizations.of(context)!.cvv,
+                            type: TextInputType.number),
+                        customTextField(
+                            AppLocalizations.of(context)!.card_holder_name),
                       ],
                     )),
 
@@ -70,7 +75,7 @@ class _TransportationCardState extends State<TransportationCard> {
                         showErrorWindow(context);
                       }
                     },
-                    child: const Text("Purchase"),
+                    child: Text(AppLocalizations.of(context)!.purchase),
                   ),
                 ),
               ],
@@ -85,14 +90,15 @@ class _TransportationCardState extends State<TransportationCard> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
+        textCapitalization: TextCapitalization.words,
         style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            // fontWeight: FontWeight.bold,
             fontFamily: GoogleFonts.quicksand().fontFamily),
         textInputAction: TextInputAction.next,
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return "*Neseseri";
+            return "*Required";
           }
           return null;
         },

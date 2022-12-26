@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 showErrorWindow(BuildContext context) {
   showDialog(
@@ -13,8 +14,8 @@ showErrorWindow(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: const Text("Under Construction"),
-        content: const Text("This feature is not implemented yet."),
+        title: Text(AppLocalizations.of(context)!.under_construction),
+        content: Text(AppLocalizations.of(context)!.future_error),
         actions: <Widget>[
           TextButton(
             child: const Text("Close"),

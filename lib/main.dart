@@ -1,27 +1,36 @@
-import 'package:city_guide/homepage.dart';
-import 'package:device_preview/device_preview.dart';
+import 'package:city_guide/screens/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(
-    DevicePreview(
-      enabled: false,
-      builder: (context) => const MyApp(), // Wrap your app
-    ),
+    const MyApp(), // Wrap your app
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Locale _locale;
+
+  void setLocale(Locale value) {
+    setState(() {
+      _locale = value;
+    });
+  }
 
 // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       useInheritedMediaQuery: true,
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-
       // on below line we are hiding debug banner
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
