@@ -1,9 +1,9 @@
-import 'package:city_guide/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wikidart/wikidart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../config.dart';
 import '../response/nearby_places_response.dart';
 
 void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
@@ -76,7 +76,7 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
                 alignment: Alignment.topLeft,
                 child: Text(
                   placeInfo.openingHours == null
-                      ? AppLocalizations.of(context)!.no_data
+                      ? AppLocalizations.of(context).noData
                       : placeInfo.openingHours!.openNow == true
                           ? "Open Now"
                           : "Not Open Now",
@@ -123,7 +123,7 @@ void dialogWindowForPlaceInfo(BuildContext context, Results placeInfo) {
                           const Icon(Icons.error_outline,
                               size: 100, color: Colors.red),
                           Text(
-                            AppLocalizations.of(context)!.no_wiki_data,
+                            AppLocalizations.of(context).noWikiData,
                             style: TextStyle(
                                 fontSize: 18,
                                 overflow: TextOverflow.clip,

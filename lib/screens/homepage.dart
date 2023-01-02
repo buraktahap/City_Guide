@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'package:city_guide/custom_widgets/error_window.dart';
-import 'package:city_guide/l10n/app_l10n.dart';
-import 'package:city_guide/main.dart';
 import 'dart:convert';
 import 'package:city_guide/response/nearby_places_response.dart';
 import 'package:city_guide/screens/transportation_card.dart';
@@ -12,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../config.dart';
 import '../custom_widgets/place_info_window.dart';
 
 final lightTheme = ThemeData.light().copyWith();
@@ -23,7 +22,6 @@ List<Marker> markers = <Marker>[];
 //Circle
 Set<Circle> _circles = <Circle>{};
 double latitude = 38.45817;
-const apiKey = "AIzaSyCbZ7uHZmGNtqwUa7ZGESdvRAxiUbcAVJg";
 
 List nearbyPlaces = [];
 
@@ -106,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                   //zoom out
                   GestureDetector(
                     onTap: () {
-                      if (radius < 4575) {
+                      if (radius > 1175) {
                         setState(() {
                           radius -= 425;
                         });
@@ -144,7 +142,7 @@ class _HomePageState extends State<HomePage> {
 
                   GestureDetector(
                     onTap: () {
-                      if (radius > 1175) {
+                      if (radius < 4575) {
                         setState(() {
                           radius += 425;
                         });
@@ -177,7 +175,7 @@ class _HomePageState extends State<HomePage> {
             // specified current users location
             CameraPosition cameraPosition = CameraPosition(
               target: LatLng(value.latitude, value.longitude),
-              zoom: 15 + (radius - 5000) / 2000,
+              zoom: 15 - (radius) / 2000,
             );
             await getUserCurrentLocation();
             await getNearbyPlaces();
@@ -212,11 +210,11 @@ class _HomePageState extends State<HomePage> {
                         const Icon(
                           Icons.menu,
                         ),
-                        Text(AppLocalizations.of(context)!.menu)
+                        Text(AppLocalizations.of(context).menu)
                       ],
                     ),
                     onPressed: Scaffold.of(context).openDrawer,
-                    tooltip: AppLocalizations.of(context)!.menu);
+                    tooltip: AppLocalizations.of(context).menu);
               },
             ),
             IconButton(
@@ -228,13 +226,13 @@ class _HomePageState extends State<HomePage> {
                   const Icon(
                     Icons.search,
                   ),
-                  Text(AppLocalizations.of(context)!.search)
+                  Text(AppLocalizations.of(context).search)
                 ],
               ),
               onPressed: () {
                 showErrorWindow(context);
               },
-              tooltip: AppLocalizations.of(context)!.search,
+              tooltip: AppLocalizations.of(context).search,
             ),
           ],
         ),
@@ -264,7 +262,7 @@ class _HomePageState extends State<HomePage> {
     markers.clear();
 
     var url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?request_count=${requestCount.toString()}&type=museum|art_gallery|hindu_temple|mosque|synagogue|tourist_attraction|cemetery|church|&location=$latitude,$longitude&radius=${radius.toString()}&key=$apiKey');
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?request_count=${requestCount.toString()}&type=museum|art_gallery|hindu_temple|mosque|synagogue|tourist_attraction|cemetery|church|&location=$latitude,$longitude&radius=$radius&key=$apiKey');
 
     var response = await http.post(url);
     requestCount++;
@@ -277,10 +275,10 @@ class _HomePageState extends State<HomePage> {
     });
 
     while (nearbyPlacesResponse.nextPageToken != null) {
-      await Future.delayed(const Duration(seconds: 2), () {});
+      await Future.delayed(const Duration(seconds: 3), () {});
 
       final url = Uri.parse(
-          'https://maps.googleapis.com/maps/api/place/nearbysearch/json?pagetoken=${nearbyPlacesResponse.nextPageToken.toString()}&key=$apiKey');
+          'https://maps.googleapis.com/maps/api/place/nearbysearch/json?request_count=${requestCount.toString()}&pagetoken=${nearbyPlacesResponse.nextPageToken.toString()}&key=$apiKey');
 
       var response = await http.post(url);
 
@@ -296,9 +294,7 @@ class _HomePageState extends State<HomePage> {
 
     debugPrint(nearbyPlaces.length.toString());
 
-    for (var i in nearbyPlaces
-        .where((element) => (element.rating ?? 0.0) >= 3.0)
-        .toList()) {
+    for (var i in nearbyPlaces.toList()) {
       markers.add(Marker(
         markerId: MarkerId(i.placeId.toString()),
         position:
@@ -306,7 +302,7 @@ class _HomePageState extends State<HomePage> {
         infoWindow: InfoWindow(
           title: i.name!,
           // ignore: use_build_context_synchronously
-          snippet: i.vicinity ?? AppLocalizations.of(context)!.no_info,
+          snippet: i.vicinity ?? AppLocalizations.of(context).noInfo,
           onTap: () => dialogWindowForPlaceInfo(
             context,
             i,
@@ -454,7 +450,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Drawer drawer(BuildContext context) {
-    bool value = false;
     return Drawer(
       //custom drawer
       child: ListView(
@@ -483,7 +478,7 @@ class _HomePageState extends State<HomePage> {
           //weather of the city
           ListTile(
             leading: const Icon(Icons.wb_sunny),
-            title: Text(AppLocalizations.of(context)!.weather_title),
+            title: Text(AppLocalizations.of(context).weatherTitle),
             onTap: () {
               Navigator.pop(context);
               showErrorWindow(context);
@@ -492,7 +487,7 @@ class _HomePageState extends State<HomePage> {
           //news
           ListTile(
             leading: const Icon(Icons.newspaper),
-            title: Text(AppLocalizations.of(context)!.news),
+            title: Text(AppLocalizations.of(context).news),
             onTap: () {
               Navigator.pop(context);
               showErrorWindow(context);
@@ -501,7 +496,7 @@ class _HomePageState extends State<HomePage> {
           //events
           ListTile(
             leading: const Icon(Icons.event),
-            title: Text(AppLocalizations.of(context)!.events),
+            title: Text(AppLocalizations.of(context).events),
             onTap: () {
               Navigator.pop(context);
               showErrorWindow(context);
@@ -510,7 +505,7 @@ class _HomePageState extends State<HomePage> {
           //tips
           ListTile(
             leading: const Icon(Icons.lightbulb),
-            title: Text(AppLocalizations.of(context)!.tips),
+            title: Text(AppLocalizations.of(context).tips),
             onTap: () {
               Navigator.pop(context);
               showErrorWindow(context);
@@ -518,8 +513,8 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.credit_card),
-            title: Text(
-                AppLocalizations.of(context)!.purchase_transportation_card),
+            title:
+                Text(AppLocalizations.of(context).purchaseTransportationCard),
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const TransportationCard()));
@@ -527,7 +522,7 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: Text(AppLocalizations.of(context)!.settings),
+            title: Text(AppLocalizations.of(context).settings),
             onTap: () {
               Navigator.pop(context);
               showErrorWindow(context);
@@ -535,7 +530,7 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.help),
-            title: Text(AppLocalizations.of(context)!.help),
+            title: Text(AppLocalizations.of(context).help),
             onTap: () {
               Navigator.pop(context);
               showErrorWindow(context);
@@ -543,7 +538,7 @@ class _HomePageState extends State<HomePage> {
           ),
           ListTile(
             leading: const Icon(Icons.exit_to_app),
-            title: Text(AppLocalizations.of(context)!.logout),
+            title: Text(AppLocalizations.of(context).logout),
             onTap: () {
               SystemNavigator.pop();
             },
@@ -551,7 +546,7 @@ class _HomePageState extends State<HomePage> {
           //about
           ListTile(
             leading: const Icon(Icons.info),
-            title: Text(AppLocalizations.of(context)!.about),
+            title: Text(AppLocalizations.of(context).about),
             onTap: () {
               showAboutDialog(
                   context: context,
@@ -565,35 +560,35 @@ class _HomePageState extends State<HomePage> {
                   ]);
             },
           ),
-          //language changing switch with applocalizations and l10n
-          ListTile(
-            title: const Text("Switch Language"),
-            trailing: Switch(
-              value: value,
-              onChanged: (value) {
-                setState(() {
-                  if (value == true) {
-                    lookupL10n(const Locale('en', 'US'));
-                    value = !value;
-                  } else {
-                    lookupL10n(const Locale('tr', 'TR'));
-                    value = !value;
-                  }
-                });
-              },
-              activeTrackColor: const Color(0xff007AFF),
-              activeColor: const Color(0xff007AFF),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.exit_to_app),
-            title: Text(AppLocalizations.of(context)!.logout),
-            onTap: () {
-              setState(() {
-                L10n.delegate.load(const Locale('tr', 'TR'));
-              });
-            },
-          ),
+          // //language changing switch with applocalizations and l10n
+          // ListTile(
+          //   title: const Text("Switch Language"),
+          //   trailing: Switch(
+          //     value: value,
+          //     onChanged: (value) {
+          //       setState(() {
+          //         if (value == true) {
+          //           lookupL10n(const Locale('en', 'US'));
+          //           value = !value;
+          //         } else {
+          //           lookupL10n(const Locale('tr', 'TR'));
+          //           value = !value;
+          //         }
+          //       });
+          //     },
+          //     activeTrackColor: const Color(0xff007AFF),
+          //     activeColor: const Color(0xff007AFF),
+          //   ),
+          // ),
+          // ListTile(
+          //   leading: const Icon(Icons.exit_to_app),
+          //   title: Text(AppLocalizations.of(context)!.logout),
+          //   onTap: () {
+          //     setState(() {
+          //       L10n.delegate.load(const Locale('tr', 'TR'));
+          //     });
+          //   },
+          // ),
 
           //version
           const ListTile(

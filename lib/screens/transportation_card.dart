@@ -18,7 +18,7 @@ class _TransportationCardState extends State<TransportationCard> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          AppLocalizations.of(context)!.purchase_transportation_card,
+          AppLocalizations.of(context).purchaseTransportationCard,
           style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -43,25 +43,24 @@ class _TransportationCardState extends State<TransportationCard> {
                     autovalidateMode: AutovalidateMode.always,
                     child: Column(
                       children: [
-                        customTextField(AppLocalizations.of(context)!.name),
-                        customTextField(AppLocalizations.of(context)!.surname),
-                        customTextField(AppLocalizations.of(context)!.email),
+                        customTextField(AppLocalizations.of(context).name),
+                        customTextField(AppLocalizations.of(context).surname),
+                        customTextField(AppLocalizations.of(context).email),
                         customTextField(
-                            AppLocalizations.of(context)!.phone_number,
+                            AppLocalizations.of(context).phoneNumber,
                             type: TextInputType.number),
-                        customTextField(AppLocalizations.of(context)!.address),
-                        customTextField(AppLocalizations.of(context)!.zip_code,
+                        customTextField(AppLocalizations.of(context).address),
+                        customTextField(AppLocalizations.of(context).zipCode,
                             type: TextInputType.number),
-                        customTextField(
-                            AppLocalizations.of(context)!.card_number,
-                            type: TextInputType.number),
-                        customTextField(
-                            AppLocalizations.of(context)!.expiration_date,
-                            type: TextInputType.number),
-                        customTextField(AppLocalizations.of(context)!.cvv,
+                        customTextField(AppLocalizations.of(context).cardNumber,
                             type: TextInputType.number),
                         customTextField(
-                            AppLocalizations.of(context)!.card_holder_name),
+                            AppLocalizations.of(context).expirationDate,
+                            type: TextInputType.number),
+                        customTextField(AppLocalizations.of(context).cvv,
+                            type: TextInputType.number),
+                        customTextField(
+                            AppLocalizations.of(context).cardHolderName),
                       ],
                     )),
 
@@ -75,7 +74,7 @@ class _TransportationCardState extends State<TransportationCard> {
                         showErrorWindow(context);
                       }
                     },
-                    child: Text(AppLocalizations.of(context)!.purchase),
+                    child: Text(AppLocalizations.of(context).purchase),
                   ),
                 ),
               ],

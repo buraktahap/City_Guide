@@ -14,8 +14,8 @@ showErrorWindow(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: Text(AppLocalizations.of(context)!.under_construction),
-        content: Text(AppLocalizations.of(context)!.future_error),
+        title: Text(AppLocalizations.of(context).underConstruction),
+        content: Text(AppLocalizations.of(context).futureError),
         actions: <Widget>[
           TextButton(
             child: const Text("Close"),
